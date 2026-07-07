@@ -3,7 +3,8 @@
 import { Line, OrbitControls, Stars, Text } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useMemo, useRef, useState } from "react";
-import type { Group } from "three";
+import type { Group, PerspectiveCamera } from "three";
+import { Vector3 } from "three";
 
 import { PositionedVentureNode, VentureEdge } from "@/types/venture";
 
@@ -60,10 +61,56 @@ function nodeLabel(node: PositionedVentureNode) {
   return `${primary}\n${secondary}\n${tertiary}`;
 }
 
+function nodeWeight(node: PositionedVentureNode) {
+  return (node.valuationGBP ?? 0) / 1000000 + node.metrics.influenceScore * 3 + node.metrics.connectionCount * 16;
+}
+
+function buildFocusCamera(source: PositionedVentureNode, target: PositionedVentureNode) {
+  const sourceVec = new Vector3(...source.position);
+  const targetVec = new Vector3(...target.position);
+  const midpoint = sourceVec.clone().add(targetVec).multiplyScalar(0.5);
+  const axis = targetVec.clone().sub(sourceVec).normalize();
+  const normal = new Vector3(-axis.z, 0.22, axis.x).normalize();
+  const distance = Math.max(sourceVec.distanceTo(targetVec) * 1.55, 12);
+  const cameraPosition = midpoint.clone().add(normal.multiplyScalar(distance)).add(new Vector3(0, 3.2, 0));
+
+  return {
+    target: midpoint,
+    position: cameraPosition,
+  };
+}
+
+function CameraDirector({
+  controlsRef,
+  focus,
+}: {
+  controlsRef: React.MutableRefObject<any>;
+  focus: { position: Vector3; target: Vector3 } | null;
+}) {
+  const defaultPosition = useRef(new Vector3(0, 10, 28));
+  const defaultTarget = useRef(new Vector3(0, 0, 0));
+
+  useFrame(({ camera }) => {
+    const activeCamera = camera as PerspectiveCamera;
+    const desiredPosition = focus?.position ?? defaultPosition.current;
+    const desiredTarget = focus?.target ?? defaultTarget.current;
+
+    activeCamera.position.lerp(desiredPosition, focus ? 0.06 : 0.03);
+
+    if (controlsRef.current) {
+      controlsRef.current.target.lerp(desiredTarget, focus ? 0.08 : 0.04);
+      controlsRef.current.update();
+    }
+  });
+
+  return null;
+}
+
 function DriftingNode({
   node,
   isSelected,
   isHovered,
+  showLabel,
   onSelectNode,
   onHover,
   compact = false,
@@ -71,6 +118,7 @@ function DriftingNode({
   node: PositionedVentureNode;
   isSelected: boolean;
   isHovered: boolean;
+  showLabel: boolean;
   onSelectNode: (nodeId: string | null) => void;
   onHover: (nodeId: string | null) => void;
   compact?: boolean;
@@ -95,8 +143,14 @@ function DriftingNode({
     <group ref={groupRef} position={node.position}>
       <mesh
         scale={scale}
-        onClick={() => onSelectNode(node.id)}
-        onPointerOver={() => onHover(node.id)}
+        onClick={(event) => {
+          event.stopPropagation();
+          onSelectNode(node.id);
+        }}
+        onPointerOver={(event) => {
+          event.stopPropagation();
+          onHover(node.id);
+        }}
         onPointerOut={() => onHover(null)}
       >
         <sphereGeometry args={[sphereSize, 20, 20]} />
@@ -105,29 +159,78 @@ function DriftingNode({
           emissive={node.color}
           emissiveIntensity={isSelected ? 0.38 : isHovered ? 0.24 : 0.08}
           transparent
-          opacity={isSelected ? 0.3 : isHovered ? 0.22 : 0.14}
+          opacity={isSelected ? 0.32 : isHovered ? 0.24 : 0.14}
           roughness={0.16}
           metalness={0.82}
         />
       </mesh>
-      <Text
-        position={[0, sphereSize + (compact ? 0.54 : 0.78), 0]}
-        color={isSelected ? "#ffffff" : isHovered ? "#e4e4e7" : "#a1a1aa"}
-        fontSize={compact ? 0.22 : 0.28}
-        lineHeight={1.28}
-        anchorX="center"
-        anchorY="middle"
-        maxWidth={7.5}
-      >
-        {nodeLabel(node)}
-      </Text>
+      {showLabel ? (
+        <Text
+          position={[0, sphereSize + (compact ? 0.54 : 0.78), 0]}
+          color={isSelected ? "#ffffff" : isHovered ? "#e4e4e7" : "#a1a1aa"}
+          fontSize={compact ? 0.22 : 0.28}
+          lineHeight={1.28}
+          anchorX="center"
+          anchorY="middle"
+          maxWidth={7.5}
+        >
+          {nodeLabel(node)}
+        </Text>
+      ) : null}
     </group>
   );
 }
 
 function GraphScene({ nodes, edges, selectedNodeId, onSelectNode, compact }: GraphCanvasProps) {
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
+  const [hoveredEdgeId, setHoveredEdgeId] = useState<string | null>(null);
+  const [focusedEdgeId, setFocusedEdgeId] = useState<string | null>(null);
   const nodeMap = useMemo(() => new Map(nodes.map((node) => [node.id, node])), [nodes]);
+  const controlsRef = useRef<any>(null);
+
+  const importantNodeIds = useMemo(() => {
+    return new Set(
+      nodes
+        .slice()
+        .sort((a, b) => nodeWeight(b) - nodeWeight(a))
+        .slice(0, compact ? 14 : 24)
+        .map((node) => node.id),
+    );
+  }, [compact, nodes]);
+
+  const selectedEdgeIds = useMemo(() => {
+    if (!selectedNodeId) return new Set<string>();
+    return new Set(
+      edges
+        .filter((edge) => edge.source === selectedNodeId || edge.target === selectedNodeId)
+        .map((edge) => edge.id),
+    );
+  }, [edges, selectedNodeId]);
+
+  const focusNodeIds = useMemo(() => {
+    const ids = new Set<string>();
+    if (selectedNodeId) ids.add(selectedNodeId);
+    if (hoveredNodeId) ids.add(hoveredNodeId);
+
+    const activeEdge = edges.find((edge) => edge.id === focusedEdgeId || edge.id === hoveredEdgeId);
+    if (activeEdge) {
+      ids.add(activeEdge.source);
+      ids.add(activeEdge.target);
+    }
+
+    return ids;
+  }, [edges, focusedEdgeId, hoveredEdgeId, hoveredNodeId, selectedNodeId]);
+
+  const cameraFocus = useMemo(() => {
+    const activeEdge = edges.find((edge) => edge.id === focusedEdgeId);
+    if (!activeEdge) return null;
+
+    const source = nodeMap.get(activeEdge.source);
+    const target = nodeMap.get(activeEdge.target);
+    if (!source || !target) return null;
+
+    return buildFocusCamera(source, target);
+  }, [edges, focusedEdgeId, nodeMap]);
 
   return (
     <>
@@ -137,13 +240,18 @@ function GraphScene({ nodes, edges, selectedNodeId, onSelectNode, compact }: Gra
       <pointLight position={[18, 20, 12]} intensity={42} color="#f5f5f5" />
       <pointLight position={[-18, -12, -10]} intensity={28} color="#a3a3a3" />
       <Stars radius={65} depth={34} count={1400} factor={3.2} fade speed={0.42} saturation={0} />
+      <CameraDirector controlsRef={controlsRef} focus={cameraFocus} />
 
       {edges.map((edge, index) => {
         const source = nodeMap.get(edge.source);
         const target = nodeMap.get(edge.target);
         if (!source || !target) return null;
 
-        const active = selectedNodeId && (edge.source === selectedNodeId || edge.target === selectedNodeId);
+        const active =
+          selectedEdgeIds.has(edge.id) ||
+          edge.id === focusedEdgeId ||
+          edge.id === hoveredEdgeId ||
+          (selectedNodeId && (edge.source === selectedNodeId || edge.target === selectedNodeId));
 
         return (
           <Line
@@ -152,11 +260,21 @@ function GraphScene({ nodes, edges, selectedNodeId, onSelectNode, compact }: Gra
             color={active ? "#fafafa" : index % 4 === 0 ? "#a3a3a3" : "#404040"}
             transparent
             opacity={active ? 0.88 : index % 4 === 0 ? 0.3 : 0.18}
-            lineWidth={active ? 1.6 : Math.max(0.38, edge.strength * 0.78)}
+            lineWidth={active ? 1.8 : Math.max(0.38, edge.strength * 0.78)}
             dashed={!active && index % 3 === 0}
             dashScale={12}
             gapSize={0.55}
             dashSize={0.95}
+            onPointerOver={(event) => {
+              event.stopPropagation();
+              setHoveredEdgeId(edge.id);
+            }}
+            onPointerOut={() => setHoveredEdgeId(null)}
+            onClick={(event) => {
+              event.stopPropagation();
+              setFocusedEdgeId((current) => (current === edge.id ? null : edge.id));
+              onSelectNode(null);
+            }}
           />
         );
       })}
@@ -167,18 +285,28 @@ function GraphScene({ nodes, edges, selectedNodeId, onSelectNode, compact }: Gra
           node={node}
           isSelected={selectedNodeId === node.id}
           isHovered={hoveredNodeId === node.id}
-          onSelectNode={onSelectNode}
+          showLabel={
+            selectedNodeId === node.id ||
+            hoveredNodeId === node.id ||
+            focusNodeIds.has(node.id) ||
+            importantNodeIds.has(node.id)
+          }
+          onSelectNode={(nodeId) => {
+            setFocusedEdgeId(null);
+            onSelectNode(nodeId);
+          }}
           onHover={setHoveredNodeId}
           compact={compact}
         />
       ))}
 
       <OrbitControls
+        ref={controlsRef}
         enablePan
         enableZoom
         maxDistance={50}
         minDistance={10}
-        autoRotate
+        autoRotate={!cameraFocus}
         autoRotateSpeed={0.22}
       />
     </>
@@ -196,7 +324,10 @@ export function GraphCanvas(props: GraphCanvasProps) {
           : "hud-panel relative h-full min-h-[620px] overflow-hidden"
       }
     >
-      <Canvas camera={{ position: [0, 10, 28], fov: 48 }}>
+      <Canvas
+        camera={{ position: [0, 10, 28], fov: 48 }}
+        onPointerMissed={() => props.onSelectNode(null)}
+      >
         <GraphScene {...props} compact={compact} />
       </Canvas>
     </div>
