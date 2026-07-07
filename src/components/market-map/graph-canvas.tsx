@@ -14,12 +14,50 @@ interface GraphCanvasProps {
   onSelectNode: (nodeId: string | null) => void;
   compact?: boolean;
   fullscreen?: boolean;
-  title?: string;
-  summary?: string;
-  stats?: {
-    nodes: number;
-    edges: number;
-  };
+}
+
+function toCountryCode(value: string | null) {
+  if (!value) return "XX";
+  return value
+    .split(/\s+/)
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 3)
+    .toUpperCase();
+}
+
+function valuationCode(value: number | null) {
+  if (!value) return "NA";
+  if (value >= 1000000000) return `${(value / 1000000000).toFixed(1).replace(/\.0$/, "")}B`;
+  return `${Math.round(value / 1000000)}M`;
+}
+
+function typeCode(value: PositionedVentureNode["type"]) {
+  return {
+    company: "CO",
+    investor: "IV",
+    founder: "FD",
+    university: "UN",
+    sector: "SC",
+  }[value];
+}
+
+function shortName(value: string) {
+  return value
+    .replace(/[^A-Za-z0-9 ]/g, "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part.slice(0, 4).toUpperCase())
+    .join("-")
+    .slice(0, 16);
+}
+
+function nodeLabel(node: PositionedVentureNode) {
+  const primary = `${typeCode(node.type)}-${String(node.foundedYear ?? 0).slice(-2) || "00"} ${shortName(node.name)}`;
+  const secondary = `${toCountryCode(node.country)} ${node.stage ?? node.sector ?? "NETWORK"}`;
+  const tertiary = `${valuationCode(node.valuationGBP)} | INF ${node.metrics.influenceScore}`;
+
+  return `${primary}\n${secondary}\n${tertiary}`;
 }
 
 function DriftingNode({
@@ -51,6 +89,7 @@ function DriftingNode({
   });
 
   const scale = isSelected ? 1.22 : isHovered ? 1.08 : 1;
+  const sphereSize = node.radius * (compact ? 0.68 : 0.82);
 
   return (
     <group ref={groupRef} position={node.position}>
@@ -60,27 +99,28 @@ function DriftingNode({
         onPointerOver={() => onHover(node.id)}
         onPointerOut={() => onHover(null)}
       >
-        <sphereGeometry args={[node.radius * (compact ? 0.68 : 0.82), 20, 20]} />
+        <sphereGeometry args={[sphereSize, 20, 20]} />
         <meshStandardMaterial
           color={node.color}
           emissive={node.color}
-          emissiveIntensity={isSelected ? 0.52 : isHovered ? 0.34 : 0.12}
-          roughness={0.18}
-          metalness={0.76}
+          emissiveIntensity={isSelected ? 0.38 : isHovered ? 0.24 : 0.08}
+          transparent
+          opacity={isSelected ? 0.3 : isHovered ? 0.22 : 0.14}
+          roughness={0.16}
+          metalness={0.82}
         />
       </mesh>
-      {(isSelected || isHovered || (!compact && node.type === "sector")) && (
-        <Text
-          position={[0, node.radius + (compact ? 0.76 : 1.04), 0]}
-          color={isSelected ? "#ffffff" : "#d4d4d4"}
-          fontSize={compact ? 0.48 : node.type === "sector" ? 0.78 : 0.62}
-          anchorX="center"
-          anchorY="middle"
-          maxWidth={10}
-        >
-          {node.name}
-        </Text>
-      )}
+      <Text
+        position={[0, sphereSize + (compact ? 0.54 : 0.78), 0]}
+        color={isSelected ? "#ffffff" : isHovered ? "#e4e4e7" : "#a1a1aa"}
+        fontSize={compact ? 0.22 : 0.28}
+        lineHeight={1.28}
+        anchorX="center"
+        anchorY="middle"
+        maxWidth={7.5}
+      >
+        {nodeLabel(node)}
+      </Text>
     </group>
   );
 }
@@ -146,7 +186,7 @@ function GraphScene({ nodes, edges, selectedNodeId, onSelectNode, compact }: Gra
 }
 
 export function GraphCanvas(props: GraphCanvasProps) {
-  const { compact = false, fullscreen = false, title, summary, stats } = props;
+  const { compact = false, fullscreen = false } = props;
 
   return (
     <div
@@ -156,26 +196,6 @@ export function GraphCanvas(props: GraphCanvasProps) {
           : "hud-panel relative h-full min-h-[620px] overflow-hidden"
       }
     >
-      {fullscreen ? (
-        <>
-          <div className="pointer-events-none absolute left-5 top-5 z-10 max-w-3xl bg-[rgba(5,5,5,0.42)] px-4 py-3 backdrop-blur-sm">
-            <p className="hud-label">Graph</p>
-            {title ? <h1 className="mt-2 text-2xl font-medium text-white">{title}</h1> : null}
-            {summary ? <p className="mt-2 text-sm text-zinc-400">{summary}</p> : null}
-          </div>
-          {stats ? (
-            <div className="pointer-events-none absolute right-5 top-5 z-10 bg-[rgba(5,5,5,0.42)] px-4 py-3 text-right text-sm text-zinc-400 backdrop-blur-sm">
-              <p>{stats.nodes} nodes</p>
-              <p>{stats.edges} edges</p>
-            </div>
-          ) : null}
-        </>
-      ) : !compact ? (
-        <div className="pointer-events-none absolute left-4 top-4 z-10 border border-white/12 bg-[rgba(8,8,8,0.8)] px-3 py-2">
-          <p className="hud-label">Graph Status</p>
-          <p className="mt-1 text-xs text-zinc-300">Animated fictional venture network</p>
-        </div>
-      ) : null}
       <Canvas camera={{ position: [0, 10, 28], fov: 48 }}>
         <GraphScene {...props} compact={compact} />
       </Canvas>

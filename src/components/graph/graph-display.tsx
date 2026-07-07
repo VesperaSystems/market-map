@@ -19,9 +19,6 @@ export function GraphDisplay({ config }: { config: ClientGraphConfig }) {
         onSelectNode={setSelectedNodeId}
         compact
         fullscreen
-        title={config.label}
-        summary={config.summary}
-        stats={{ nodes: graph.nodes.length, edges: graph.edges.length }}
       />
     </div>
   );
