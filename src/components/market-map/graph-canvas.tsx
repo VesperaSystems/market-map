@@ -12,6 +12,7 @@ interface GraphCanvasProps {
   edges: VentureEdge[];
   selectedNodeId: string | null;
   onSelectNode: (nodeId: string | null) => void;
+  compact?: boolean;
 }
 
 function DriftingNode({
@@ -20,12 +21,14 @@ function DriftingNode({
   isHovered,
   onSelectNode,
   onHover,
+  compact = false,
 }: {
   node: PositionedVentureNode;
   isSelected: boolean;
   isHovered: boolean;
   onSelectNode: (nodeId: string | null) => void;
   onHover: (nodeId: string | null) => void;
+  compact?: boolean;
 }) {
   const groupRef = useRef<Group>(null);
   const offset = node.position[0] * 0.37 + node.position[1] * 0.22;
@@ -40,7 +43,7 @@ function DriftingNode({
     );
   });
 
-  const scale = isSelected ? 1.4 : isHovered ? 1.18 : 1;
+  const scale = isSelected ? 1.26 : isHovered ? 1.12 : 1;
 
   return (
     <group ref={groupRef} position={node.position}>
@@ -50,20 +53,20 @@ function DriftingNode({
         onPointerOver={() => onHover(node.id)}
         onPointerOut={() => onHover(null)}
       >
-        <sphereGeometry args={[node.radius, 28, 28]} />
+        <sphereGeometry args={[node.radius * (compact ? 0.82 : 1), 22, 22]} />
         <meshStandardMaterial
           color={node.color}
           emissive={node.color}
-          emissiveIntensity={isSelected ? 1.1 : isHovered ? 0.78 : 0.34}
-          roughness={0.12}
-          metalness={0.82}
+          emissiveIntensity={isSelected ? 0.68 : isHovered ? 0.44 : 0.18}
+          roughness={0.18}
+          metalness={0.76}
         />
       </mesh>
-      {(isSelected || isHovered || node.type === "sector") && (
+      {(isSelected || isHovered || (!compact && node.type === "sector")) && (
         <Text
-          position={[0, node.radius + 1.4, 0]}
-          color={isSelected ? "#f8fafc" : "#cbd5e1"}
-          fontSize={node.type === "sector" ? 1.15 : 0.8}
+          position={[0, node.radius + (compact ? 0.9 : 1.2), 0]}
+          color={isSelected ? "#ffffff" : "#d4d4d4"}
+          fontSize={compact ? 0.54 : node.type === "sector" ? 0.9 : 0.68}
           anchorX="center"
           anchorY="middle"
           maxWidth={10}
@@ -75,19 +78,18 @@ function DriftingNode({
   );
 }
 
-function GraphScene({ nodes, edges, selectedNodeId, onSelectNode }: GraphCanvasProps) {
+function GraphScene({ nodes, edges, selectedNodeId, onSelectNode, compact }: GraphCanvasProps) {
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
   const nodeMap = useMemo(() => new Map(nodes.map((node) => [node.id, node])), [nodes]);
 
   return (
     <>
-      <color attach="background" args={["#03070b"]} />
-      <fog attach="fog" args={["#03070b", 20, 55]} />
-      <ambientLight intensity={0.75} />
-      <pointLight position={[18, 20, 12]} intensity={75} color="#6dfcf1" />
-      <pointLight position={[-18, -12, -10]} intensity={45} color="#ffb747" />
-      <pointLight position={[0, 0, 22]} intensity={30} color="#f87171" />
-      <Stars radius={65} depth={34} count={1700} factor={3.5} fade speed={0.55} />
+      <color attach="background" args={["#050505"]} />
+      <fog attach="fog" args={["#050505", 20, 55]} />
+      <ambientLight intensity={0.55} />
+      <pointLight position={[18, 20, 12]} intensity={42} color="#f5f5f5" />
+      <pointLight position={[-18, -12, -10]} intensity={28} color="#a3a3a3" />
+      <Stars radius={65} depth={34} count={1400} factor={3.2} fade speed={0.42} saturation={0} />
 
       {edges.map((edge, index) => {
         const source = nodeMap.get(edge.source);
@@ -100,10 +102,10 @@ function GraphScene({ nodes, edges, selectedNodeId, onSelectNode }: GraphCanvasP
           <Line
             key={edge.id}
             points={[source.position, target.position]}
-            color={active ? "#b8fff8" : index % 4 === 0 ? "#ffb747" : "#355161"}
+            color={active ? "#fafafa" : index % 4 === 0 ? "#a3a3a3" : "#404040"}
             transparent
-            opacity={active ? 0.95 : index % 4 === 0 ? 0.34 : 0.24}
-            lineWidth={active ? 2.5 : Math.max(0.6, edge.strength * 1.3)}
+            opacity={active ? 0.88 : index % 4 === 0 ? 0.3 : 0.18}
+            lineWidth={active ? 1.9 : Math.max(0.45, edge.strength)}
             dashed={!active && index % 3 === 0}
             dashScale={12}
             gapSize={0.55}
@@ -120,6 +122,7 @@ function GraphScene({ nodes, edges, selectedNodeId, onSelectNode }: GraphCanvasP
           isHovered={hoveredNodeId === node.id}
           onSelectNode={onSelectNode}
           onHover={setHoveredNodeId}
+          compact={compact}
         />
       ))}
 
@@ -129,22 +132,25 @@ function GraphScene({ nodes, edges, selectedNodeId, onSelectNode }: GraphCanvasP
         maxDistance={50}
         minDistance={10}
         autoRotate
-        autoRotateSpeed={0.28}
+        autoRotateSpeed={0.22}
       />
     </>
   );
 }
 
 export function GraphCanvas(props: GraphCanvasProps) {
+  const { compact = false } = props;
+
   return (
     <div className="hud-panel relative h-full min-h-[620px] overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(109,252,241,0.12),transparent_22%),radial-gradient(circle_at_bottom_right,rgba(255,183,71,0.08),transparent_26%)]" />
-      <div className="pointer-events-none absolute left-4 top-4 z-10 border border-[rgba(109,252,241,0.16)] bg-[rgba(2,8,12,0.8)] px-3 py-2">
-        <p className="hud-label">Graph Status</p>
-        <p className="mt-1 text-xs text-slate-300">Animated fictional venture network</p>
-      </div>
+      {!compact ? (
+        <div className="pointer-events-none absolute left-4 top-4 z-10 border border-white/12 bg-[rgba(8,8,8,0.8)] px-3 py-2">
+          <p className="hud-label">Graph Status</p>
+          <p className="mt-1 text-xs text-zinc-300">Animated fictional venture network</p>
+        </div>
+      ) : null}
       <Canvas camera={{ position: [0, 10, 28], fov: 48 }}>
-        <GraphScene {...props} />
+        <GraphScene {...props} compact={compact} />
       </Canvas>
     </div>
   );

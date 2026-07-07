@@ -1,5 +1,5 @@
-import { MarketMapExperience } from "@/components/market-map/market-map-experience";
+import { redirect } from "next/navigation";
 
-export default function MarketMapPage() {
-  return <MarketMapExperience />;
+export default function LegacyMapPage() {
+  redirect("/config");
 }

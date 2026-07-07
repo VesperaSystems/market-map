@@ -46,10 +46,10 @@ export function MarketMapExperience() {
       <div className="mb-4 hud-panel p-4 lg:p-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="hud-label">Live Graph</p>
-            <h1 className="mt-2 text-3xl font-medium text-white">Map how capital moves.</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
-              A mission-control view of fictional venture capital relationships, designed for wall screens and rapid filtering.
+            <p className="hud-label">Config</p>
+            <h1 className="mt-2 text-3xl font-medium text-white">Configure the current graph.</h1>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-300">
+              Use this operator surface to control the graph that is displayed at the apex route or a client route.
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -60,16 +60,16 @@ export function MarketMapExperience() {
           </div>
         </div>
         <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center">
-          <div className="flex-1 border border-[rgba(109,252,241,0.14)] bg-[rgba(2,8,12,0.88)] px-4 py-3">
+          <div className="flex-1 border border-white/12 bg-[rgba(8,8,8,0.88)] px-4 py-3">
             <input
               value={filters.search}
               onChange={(event) => setFilter("search", event.target.value)}
-              placeholder="Search companies, investors, founders, sectors..."
-              className="w-full bg-transparent text-sm text-slate-100 outline-none placeholder:text-slate-500"
+              placeholder="Search nodes..."
+              className="w-full bg-transparent text-sm text-zinc-100 outline-none placeholder:text-zinc-500"
             />
           </div>
-          <div className="border border-[rgba(109,252,241,0.18)] bg-[rgba(109,252,241,0.06)] px-4 py-3 text-sm text-slate-300 tactical-copy">
-            Orbit. Zoom. Select. Read the network.
+          <div className="border border-white/12 bg-[rgba(255,255,255,0.02)] px-4 py-3 text-sm text-zinc-300 tactical-copy">
+            Filter. Orbit. Inspect.
           </div>
         </div>
       </div>
@@ -95,7 +95,7 @@ export function MarketMapExperience() {
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] px-4 py-3">
+    <div className="border border-white/10 bg-[rgba(255,255,255,0.02)] px-4 py-3">
       <p className="hud-label">{label}</p>
       <p className="mt-2 text-lg text-white">{value}</p>
     </div>

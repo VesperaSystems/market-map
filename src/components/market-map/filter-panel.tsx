@@ -40,7 +40,7 @@ function SelectField({
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full border border-[rgba(109,252,241,0.12)] bg-[rgba(2,8,12,0.88)] px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-cyan-400/50"
+        className="w-full border border-white/10 bg-[rgba(8,8,8,0.88)] px-4 py-3 text-sm text-zinc-100 outline-none transition focus:border-white/40"
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>
@@ -58,12 +58,12 @@ export function FilterPanel({ filters, options, onChange, onReset }: FilterPanel
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <p className="hud-label">Filters</p>
-          <h2 className="mt-2 text-xl font-medium text-white">Explore the ecosystem</h2>
+          <h2 className="mt-2 text-xl font-medium text-white">Graph controls</h2>
         </div>
         <button
           type="button"
           onClick={onReset}
-          className="border border-[rgba(255,255,255,0.08)] px-3 py-1.5 text-xs uppercase tracking-[0.2em] text-slate-300 transition hover:border-cyan-400/40 hover:text-cyan-200"
+          className="border border-white/10 px-3 py-1.5 text-xs uppercase tracking-[0.2em] text-zinc-300 transition hover:border-white/40 hover:text-white"
         >
           Reset
         </button>
@@ -108,10 +108,10 @@ export function FilterPanel({ filters, options, onChange, onReset }: FilterPanel
         />
       </div>
 
-      <div className="mt-6 border border-[rgba(109,252,241,0.16)] bg-[rgba(109,252,241,0.06)] p-4 text-sm text-slate-300">
-        <p className="font-medium text-cyan-100">Mock data only</p>
-        <p className="mt-2 leading-6 text-slate-400">
-          This release uses fictional startups, investors, and capital paths so the product can ship as a display system before real market data is wired in.
+      <div className="mt-6 border border-white/10 bg-[rgba(255,255,255,0.02)] p-4 text-sm text-zinc-300">
+        <p className="font-medium text-white">Mock data only</p>
+        <p className="mt-2 leading-6 text-zinc-500">
+          This operator view still controls a fictional graph so the route and display model can settle before client data is onboarded.
         </p>
       </div>
     </aside>
