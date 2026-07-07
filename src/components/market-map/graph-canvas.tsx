@@ -87,18 +87,14 @@ function CameraDirector({
   controlsRef: React.MutableRefObject<any>;
   focus: { position: Vector3; target: Vector3 } | null;
 }) {
-  const defaultPosition = useRef(new Vector3(0, 10, 28));
-  const defaultTarget = useRef(new Vector3(0, 0, 0));
-
   useFrame(({ camera }) => {
-    const activeCamera = camera as PerspectiveCamera;
-    const desiredPosition = focus?.position ?? defaultPosition.current;
-    const desiredTarget = focus?.target ?? defaultTarget.current;
+    if (!focus) return;
 
-    activeCamera.position.lerp(desiredPosition, focus ? 0.06 : 0.03);
+    const activeCamera = camera as PerspectiveCamera;
+    activeCamera.position.lerp(focus.position, 0.06);
 
     if (controlsRef.current) {
-      controlsRef.current.target.lerp(desiredTarget, focus ? 0.08 : 0.04);
+      controlsRef.current.target.lerp(focus.target, 0.08);
       controlsRef.current.update();
     }
   });
@@ -192,6 +188,7 @@ function GraphScene({ nodes, edges, selectedNodeId, onSelectNode, compact }: Gra
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
   const [hoveredEdgeId, setHoveredEdgeId] = useState<string | null>(null);
   const [focusedEdgeId, setFocusedEdgeId] = useState<string | null>(null);
+  const [manualView, setManualView] = useState(false);
   const nodeMap = useMemo(() => new Map(nodes.map((node) => [node.id, node])), [nodes]);
   const controlsRef = useRef<any>(null);
 
@@ -279,6 +276,7 @@ function GraphScene({ nodes, edges, selectedNodeId, onSelectNode, compact }: Gra
             onPointerOut={() => setHoveredEdgeId(null)}
             onClick={(event) => {
               event.stopPropagation();
+              setManualView(false);
               setFocusedEdgeId((current) => (current === edge.id ? null : edge.id));
               onSelectNode(null);
             }}
@@ -300,6 +298,7 @@ function GraphScene({ nodes, edges, selectedNodeId, onSelectNode, compact }: Gra
           }
           onSelectNode={(nodeId) => {
             setFocusedEdgeId(null);
+            setManualView(true);
             onSelectNode(nodeId);
           }}
           onHover={setHoveredNodeId}
@@ -313,8 +312,9 @@ function GraphScene({ nodes, edges, selectedNodeId, onSelectNode, compact }: Gra
         enableZoom
         maxDistance={50}
         minDistance={10}
-        autoRotate={!cameraFocus}
+        autoRotate={!cameraFocus && !manualView}
         autoRotateSpeed={0.22}
+        onStart={() => setManualView(true)}
       />
     </>
   );
