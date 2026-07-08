@@ -1,6 +1,6 @@
-# Vespera Systems - Venture Market Map
+# Vespera Systems - Venture Graph
 
-Venture Market Map is a mocked-data exploration app for studying how capital moves through a fictional venture ecosystem.
+Venture Graph is a mocked-data exploration app for studying how capital moves through a fictional venture ecosystem.
 
 ## Stack
 
@@ -14,7 +14,7 @@ Venture Market Map is a mocked-data exploration app for studying how capital mov
 ## What is included
 
 - Home page with premium dark hero and CTA
-- Full-screen Market Map page with:
+- Full-screen graph page with:
   - interactive graph canvas
   - left filter panel
   - top search bar and summary stats

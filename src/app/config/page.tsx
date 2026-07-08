@@ -33,7 +33,7 @@ const modules = [
 
 const rails = [
   ["Identity", "Client, workspace, and team permissions stay attached to the config layer."],
-  ["Delivery", "Each module maps to a revenue-facing promise on the brochure site."],
+  ["Delivery", "Each module maps to a company-level promise that resolves into product capability."],
   ["Governance", "Legal and quant decisions are visible enough to explain, review, and improve."],
 ];
 
@@ -65,7 +65,7 @@ export default function ConfigPage() {
             href="https://vesperasystems.com"
             className="rounded-full border border-white/10 bg-white/5 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-stone-100 transition hover:border-cyan-200/40 hover:bg-cyan-200/10 sm:px-5 sm:tracking-[0.22em]"
           >
-            Brochure
+            Company
           </a>
           <Link
             href="/login?next=/config"
@@ -86,7 +86,7 @@ export default function ConfigPage() {
               The control room behind the client promise.
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-stone-300 sm:text-xl">
-              AI, legal, quant, and Python editor workflows now live together at Vespera Systems config: one operational surface for the capabilities prospects discover on the brochure site.
+              AI, legal, quant, and Python editor workflows now live together at Vespera Systems config: one operational surface for the capabilities institutions discover on the company site.
             </p>
           </div>
           <div className="rounded-[36px] border border-white/10 bg-stone-950/75 p-6 shadow-[0_0_120px_rgba(34,211,238,0.1)]">
@@ -135,10 +135,10 @@ export default function ConfigPage() {
           <div>
             <p className="text-xs uppercase tracking-[0.26em] text-cyan-100">Next move</p>
             <h2 className="mt-4 max-w-3xl text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl">
-              Keep prospects on the brochure. Bring operators here.
+              Keep institutions on the company site. Bring operators here.
             </h2>
             <p className="mt-5 max-w-2xl text-base leading-7 text-stone-300">
-              This route is now the destination for AI, legal, quant, and Python editor work. The public brochure can stay focused on winning client confidence.
+              This route is now the destination for AI, legal, quant, and Python editor work. The company site can stay focused on institutional trust and clarity.
             </p>
           </div>
           <Link

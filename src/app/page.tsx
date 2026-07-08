@@ -33,9 +33,9 @@ const outcomes = [
 ];
 
 const process = [
-  ["01", "Map the revenue moment", "We identify the client conversations, diligence moments, and recurring reports that should become productised intelligence."],
+  ["01", "Graph the revenue moment", "We identify the client conversations, diligence moments, and recurring reports that should become productised intelligence."],
   ["02", "Configure the operating rooms", "Vespera shapes the AI, legal, quant, and Python workspaces around the client-facing promise."],
-  ["03", "Launch the brochure-to-config path", "The public story wins trust, then qualified users move into the secure Vespera Systems config layer."],
+  ["03", "Launch the company-to-product path", "The company story wins trust, then qualified users move into the secure Vespera Systems product layer."],
 ];
 
 export default async function HomePage() {
@@ -78,13 +78,13 @@ export default async function HomePage() {
       <section className="mx-auto grid w-full max-w-7xl items-center gap-12 px-6 pb-16 pt-8 lg:grid-cols-[1.02fr_0.98fr] lg:px-10 lg:pb-24 lg:pt-16">
         <div>
           <div className="inline-flex rounded-full border border-amber-200/20 bg-amber-200/10 px-4 py-2 text-xs uppercase tracking-[0.24em] text-amber-100">
-            {isBrochureDomain ? "Brochure site for new clients" : "Vespera Systems public front door"}
+            Company site
           </div>
           <h1 className="mt-8 max-w-5xl text-5xl font-semibold leading-[0.92] tracking-[-0.06em] text-white sm:text-7xl lg:text-8xl">
             Make your firm look inevitable before the first call.
           </h1>
           <p className="mt-7 max-w-2xl text-lg leading-8 text-stone-300 sm:text-xl">
-            Vespera Systems builds the client-facing intelligence layer for ambitious advisory, investment, and operating teams: a premium brochure presence on vesperasystems.com, connected to secure AI, legal, quant, and Python configuration at vespera.systems/config.
+            Vespera Systems builds the client-facing intelligence layer for ambitious advisory, investment, and operating teams: a premium company presence on vesperasystems.com, connected to secure AI, legal, quant, and Python workflows at vespera.systems/config.
           </p>
           <div className="mt-10 flex flex-col gap-4 sm:flex-row">
             <a
@@ -128,7 +128,7 @@ export default async function HomePage() {
               </div>
               <div className="mt-5 grid gap-3">
                 {[
-                  ["vesperasystems.com", "Public brochure", "Trust, clarity, premium positioning"],
+                  ["vesperasystems.com", "Company site", "Authority, clarity, institutional trust"],
                   ["Qualified conversation", "Sales motion", "Brief, demo, pricing, implementation"],
                   ["vespera.systems/config", "Secure workspace", "AI, legal, quant, Python editor"],
                 ].map(([label, title, body]) => (
@@ -159,12 +159,12 @@ export default async function HomePage() {
       <section className="mx-auto w-full max-w-7xl px-6 pb-20 lg:px-10">
         <div className="grid gap-6 rounded-[38px] border border-white/10 bg-stone-950/75 p-6 lg:grid-cols-[0.8fr_1.2fr] lg:p-8">
           <div>
-            <p className="text-xs uppercase tracking-[0.26em] text-amber-100">Built to sell the work</p>
+            <p className="text-xs uppercase tracking-[0.26em] text-amber-100">Built to support the work</p>
             <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl">
-              A brochure site with a real product behind it.
+              A company site with a real product behind it.
             </h2>
             <p className="mt-5 text-base leading-7 text-stone-300">
-              The public site is designed to win confidence quickly. The config route gives the delivery team a credible operational destination once the conversation turns serious.
+              The company site is designed to establish confidence quickly. The product route gives the delivery team a credible operational destination once the conversation turns serious.
             </p>
           </div>
           <div className="grid gap-3">
@@ -200,7 +200,7 @@ export default async function HomePage() {
           </div>
           <div className="mt-8 flex flex-col gap-4 border-t border-white/10 pt-8 sm:flex-row sm:items-center sm:justify-between">
             <p className="max-w-2xl text-sm leading-6 text-stone-300">
-              Use vesperasystems.com to create demand. Use vespera.systems/config to deliver the system clients believed they were buying.
+              Use vesperasystems.com to establish the company. Use vespera.systems/config to deliver the product clients believed they were buying.
             </p>
             <a
               href="mailto:hello@vespera.systems?subject=Vespera%20Systems%20new%20client%20pipeline"
