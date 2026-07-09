@@ -1,0 +1,21 @@
+{
+  "name": "Vespera Systems",
+  "short_name": "Vespera",
+  "description": "Product demo and tenant access platform for Vespera Systems.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#050505",
+  "icons": [
+    {
+      "src": "/brand/icons/vespera-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/brand/icons/vespera-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -1,28 +1,77 @@
 import type { Metadata } from "next";
+
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://vesperasystems.com"),
-  title: { default: "Vespera Systems | Graph-Native Finance Technology", template: "%s | Vespera Systems" },
-  description: "Vespera Systems Ltd builds graph-native intelligence infrastructure for investment teams: AI analyst workflows, legal contract review, quant strategy tooling, and institutional market displays.",
-  alternates: { canonical: "/" },
+  metadataBase: new URL("https://vespera.systems"),
+  applicationName: "Vespera Systems",
+  title: {
+    default: "Vespera Systems | Product Demo and Tenant Access",
+    template: "%s | Vespera Systems",
+  },
+  description:
+    "Product demo and tenant access platform for Vespera Systems intelligence displays, market maps, and authenticated client workspaces.",
+  alternates: {
+    canonical: "https://vespera.systems",
+  },
+  icons: {
+    icon: [
+      {
+        url: "/brand/favicons/favicon-32x32.png",
+        sizes: "32x32",
+        type: "image/png",
+      },
+      {
+        url: "/brand/favicons/favicon-16x16.png",
+        sizes: "16x16",
+        type: "image/png",
+      },
+    ],
+    shortcut: "/brand/favicons/favicon-32x32.png",
+    apple: [{ url: "/brand/icons/vespera-180.png", sizes: "180x180" }],
+  },
+  manifest: "/site.webmanifest",
   openGraph: {
-    title: "Vespera Systems",
-    description: "Graph-native intelligence infrastructure for investment teams.",
-    url: "https://vesperasystems.com",
-    siteName: "Vespera Systems",
     type: "website",
+    url: "https://vespera.systems",
+    siteName: "Vespera Systems",
+    title: "Vespera Systems | Product Demo and Tenant Access",
+    description:
+      "Explore the Vespera Systems demo and tenant platform for authenticated client intelligence workspaces.",
+    images: [
+      {
+        url: "/brand/icons/vespera-512.png",
+        width: 512,
+        height: 512,
+        alt: "Vespera Systems mark",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary",
+    title: "Vespera Systems | Product Demo and Tenant Access",
+    description:
+      "Explore the Vespera Systems demo and tenant platform for authenticated client intelligence workspaces.",
+    images: ["/brand/icons/vespera-512.png"],
   },
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export const viewport = {
+  themeColor: "#050505",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="en" className="h-full scroll-smooth">
-      <body className="min-h-full antialiased">
-        <div className="monochrome-field relative min-h-screen overflow-hidden">
-          <div className="pointer-events-none fixed inset-0 tactical-grid opacity-60" />
-          <div className="pointer-events-none fixed inset-0 scanlines opacity-35" />
-          <main className="relative z-10 min-h-screen">{children}</main>
+      <body className="min-h-full bg-[#050505] text-neutral-100 antialiased">
+        <div className="relative flex min-h-screen flex-col overflow-hidden">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.09),transparent_28%),linear-gradient(180deg,#050505_0%,#0a0a0a_48%,#050505_100%)]" />
+          <div className="pointer-events-none absolute inset-0 opacity-35 [background-image:linear-gradient(rgba(255,255,255,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.055)_1px,transparent_1px)] [background-size:5rem_5rem]" />
+          <main className="relative z-10 flex min-h-screen flex-col">{children}</main>
         </div>
       </body>
     </html>
